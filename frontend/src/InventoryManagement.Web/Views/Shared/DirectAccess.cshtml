@@ -1,0 +1,24 @@
+@model DirectAccessForm
+@inject PermissionService Permissions
+@{ ViewData["Title"] = Model.Title; var allowed = new List<(string Value, string Label)>();
+   foreach (var operation in Model.Operations) { if (await Permissions.HasAsync(operation.Permission)) { allowed.Add((operation.Value, operation.Label)); } } }
+<h1>@Model.Title</h1>
+@if (await Permissions.HasAsync(Model.Category ? "categories.write" : "products.write"))
+{
+    <a class="button" href="@(Model.BasePath + "/create")">@(Model.Category ? "Crear categoría" : "Crear producto")</a>
+}
+@if (allowed.Count > 0)
+{
+    <p>Accede a una operación mediante su identificador. Necesitas obtener el UUID por un medio autorizado; no tienes permiso para consultar el catálogo.</p>
+    <form method="get" action="@(Model.BasePath + "/open")" class="form-card">
+        <div asp-validation-summary="All" role="alert"></div>
+        <div class="field"><label asp-for="Id">@(Model.Category ? "UUID de la categoría" : "UUID del producto")</label>
+            <input asp-for="Id" required aria-describedby="uuid-help" />
+            <small id="uuid-help">Introduce un UUID válido y distinto de cero.</small><span asp-validation-for="Id"></span></div>
+        <div class="field"><label asp-for="Operation">Operación</label><select asp-for="Operation" required>
+            @foreach (var operation in allowed) { <option value="@operation.Value">@operation.Label</option> }
+        </select></div>
+        <button class="button" type="submit">Continuar</button>
+    </form>
+}
+else { <p>No tienes permisos para operar en esta sección.</p> }

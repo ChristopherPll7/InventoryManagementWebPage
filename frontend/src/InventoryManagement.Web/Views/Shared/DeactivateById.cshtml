@@ -1,0 +1,11 @@
+@model DeactivateById
+@{ ViewData["Title"] = "Confirmar desactivación"; }
+<section class="confirm-card">
+    <h1>¿Desactivar @Model.Resource?</h1>
+    <p>Identificador: <strong>@Model.Id</strong></p>
+    <p>No tienes acceso a sus datos actuales. Verifica el identificador antes de confirmar. La baja es lógica y no hay reactivación disponible.</p>
+    <form method="post" action="@Model.Action" asp-antiforgery="true" data-submitting>
+        <a class="button button-ghost" href="@(Model.Action.StartsWith("/categories/") ? "/categories" : "/products")">Cancelar</a>
+        <button class="button button-danger" type="submit">Confirmar desactivación</button>
+    </form>
+</section>

@@ -1,0 +1,9 @@
+﻿@inject PermissionService Permissions
+@{ var returnUrl = await Permissions.HasAsync("categories.read") ? "/categories/" + ViewData["Id"] : "/categories"; }
+@model CategoryForm
+@{ var id = (Guid)ViewData["Id"]!; ViewData["Title"] = "Editar categoría"; }
+<a return-back class="back-link" href="@returnUrl">← Volver al detalle</a><div class="form-heading"><span class="overline">CATÁLOGO / EDITAR</span><h1>Ajustar categoría.</h1><p>Los cambios de nombre no alteran los productos asociados.</p></div>
+<p class="notice notice-warning">Guardar reemplaza todos los campos editables, incluida la descripción. Si no puedes leer los datos actuales, completa los valores que deseas conservar antes de enviar.</p><a href="/categories">Volver a operaciones</a><div class="form-layout"><form preserve-return asp-antiforgery="true" method="post" action="/categories/@id/edit" class="form-card" data-submitting><h2>Información básica</h2><partial name="_Fields" model="Model" /><div class="form-actions"><a return-back class="button button-ghost" href="@returnUrl">Cancelar</a><button type="submit" class="button">Guardar cambios <span aria-hidden="true">↗</span></button></div></form><aside class="form-aside"><span class="overline">DESCRIPCIÓN</span><p>Si dejas la descripción vacía, se guardará vacía.</p></aside></div>
+
+
+

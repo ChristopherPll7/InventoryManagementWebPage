@@ -1,0 +1,3 @@
+@model ErrorPage
+@{ ViewData["Title"] = "No se pudo completar"; }
+<section class="state-panel"><span class="state-symbol">!</span><span class="overline">@Model.Code</span><h1>Algo salió del camino.</h1><p>@Model.Message</p><div class="state-actions"><a class="button" href="@Model.ReturnUrl">Volver a intentar</a><a class="button button-ghost" href="/">Ir al inicio</a></div></section>

@@ -1,0 +1,7 @@
+﻿@model CategoryDto
+@inject PermissionService Permissions
+@{ ViewData["Title"] = Model.Name; }
+<a return-back class="back-link" href="/categories">← Todas las categorías</a>
+<div class="page-heading detail-heading"><div><span class="overline">CATEGORÍA / @(Model.Id.ToString()[..8].ToUpperInvariant())</span><h1>@Model.Name</h1><span class="status @(Model.IsActive ? "status-active" : "status-inactive")">@(Model.IsActive ? "Activa" : "Inactiva")</span></div>@if (await Permissions.HasAsync("categories.write")) { <div class="button-group"><a preserve-return class="button button-ghost" href="/categories/@Model.Id/edit">Editar</a>@if (Model.IsActive) { <a preserve-return class="button button-danger-outline" href="/categories/@Model.Id/deactivate">Desactivar</a> }</div> }</div>
+<div class="detail-grid"><section class="detail-card"><span class="overline">INFORMACIÓN</span><h2>Datos de la categoría</h2><dl class="detail-list"><div><dt>Descripción</dt><dd>@(string.IsNullOrEmpty(Model.Description) ? "Sin descripción" : Model.Description)</dd></div><div><dt>Creada</dt><dd><time datetime="@Model.CreatedAt.ToString("O")">@Model.CreatedAt.ToString("dd MMM yyyy · HH:mm zzz")</time></dd></div><div><dt>Última modificación</dt><dd>@(Model.UpdatedAt?.ToString("dd MMM yyyy · HH:mm zzz") ?? "Sin modificaciones")</dd></div></dl></section><aside class="aside-note"><div class="aside-art" aria-hidden="true">◒</div><span class="overline">NOTA</span><p>Una categoría desactivada permanece disponible para consulta y conserva su nombre reservado.</p></aside></div>
+

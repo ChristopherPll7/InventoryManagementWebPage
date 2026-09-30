@@ -1,0 +1,68 @@
+﻿@model InventoryPage
+@inject PermissionService Permissions
+@{
+    var id = Model.Balance.ProductId;
+    ViewData["Title"] = "Inventario de " + Model.Balance.Name;
+    var movementUrl = Url.Action("Register", "Inventory", new Dictionary<string, object?> {
+        ["productId"] = id, ["history.Type"] = Model.Filter.Type,
+        ["history.Page"] = Model.Filter.Page, ["history.PageSize"] = Model.Filter.PageSize,
+        ["history.StartDateText"] = Model.Filter.StartDateText, ["history.EndDateText"] = Model.Filter.EndDateText,
+        ["returnUrl"] = Context.Request.Query["returnUrl"].ToString() });
+    string PageUrl(int p) => Url.Action("Details", "Inventory", new { productId = id, type = Model.Filter.Type, startDateText = Model.Filter.StartDateText, endDateText = Model.Filter.EndDateText, page = p, pageSize = Model.Filter.PageSize, returnUrl = Context.Request.Query["returnUrl"].ToString() })!;
+}
+<a return-back class="back-link" href="/products">← Operaciones</a>
+<div class="page-heading detail-heading"><div><span class="overline">03 / INVENTARIO · @Model.Balance.Sku</span><h1>@Model.Balance.Name</h1><p>Existencia, entradas y salidas en un mismo lugar.</p></div><div class="stock-badge"><span>EXISTENCIA ACTUAL</span><strong>@Model.Balance.CurrentStock</strong><small>unidades</small></div></div>
+@if (Model.IsActive == false) { <div class="notice notice-warning" role="status">Este producto está inactivo. Su existencia e historial siguen disponibles, pero no acepta movimientos nuevos.</div> }
+
+@if (Model.IsActive is null) { <p class="notice notice-warning">No se pudo consultar el estado del producto con tus permisos. La API lo comprobará al registrar un movimiento.</p> }
+<div class="inventory-grid">
+    <section class="panel history-panel" aria-labelledby="history-title">
+        <div class="panel-heading"><div><span class="overline">REGISTRO</span><h2 id="history-title">Historial de movimientos</h2></div><span class="count-pill">@Model.History.TotalCount</span></div>
+        <form method="get" action="/inventory/products/@id" class="filter-form" aria-label="Filtrar movimientos" data-submitting><input type="hidden" name="returnUrl" value="@Context.Request.Query["returnUrl"]" />
+            <div class="filter-row"><div class="field"><label for="type">Tipo</label><select id="type" name="Type"><option value="">Todos</option><option value="Entry" selected="@(Model.Filter.Type == "Entry")">Entradas</option><option value="Exit" selected="@(Model.Filter.Type == "Exit")">Salidas</option></select></div><div class="field"><label for="pageSize">Por página</label><select id="pageSize" name="PageSize"><option value="20" selected="@(Model.Filter.PageSize == 20)">20</option><option value="50" selected="@(Model.Filter.PageSize == 50)">50</option><option value="100" selected="@(Model.Filter.PageSize == 100)">100</option></select></div></div>
+            <div class="filter-row"><div class="field"><label for="startDateText">Desde</label><input id="startDateText" name="StartDateText" value="@Model.Filter.StartDateText" placeholder="2026-09-29T00:00:00-06:00" autocomplete="off" /><small>Incluye hora y zona.</small></div><div class="field"><label for="endDateText">Hasta</label><input id="endDateText" name="EndDateText" value="@Model.Filter.EndDateText" placeholder="2026-09-29T23:59:59-06:00" autocomplete="off" /><small>Intervalo inclusivo.</small></div></div>
+            <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+            <div class="filter-actions"><a class="text-link" href="@Url.Action("Details", "Inventory", new { productId = id, returnUrl = Context.Request.Query["returnUrl"].ToString() })">Limpiar filtros</a><button type="submit" class="button button-small">Aplicar filtros</button></div>
+        </form>
+
+        @if (Model.History.Items.Count == 0 && Model.History.TotalCount == 0)
+        {
+            <div class="mini-empty"><span aria-hidden="true">◎</span><h3>Sin movimientos</h3><p>No hay movimientos para los filtros seleccionados.</p></div>
+        }
+        else if (Model.History.Items.Count == 0)
+        {
+            <div class="mini-empty"><h3>Esta página está vacía</h3><p>Hay @Model.History.TotalCount movimientos para estos filtros.</p><a href="@PageUrl(1)">Volver a la primera página ↗</a></div>
+        }
+        else
+        {
+            <div class="movements">
+            @foreach (var movement in Model.History.Items)
+            {
+                <article class="movement"><span class="movement-icon @(movement.Type == "Entry" ? "entry" : "exit")" aria-hidden="true">@(movement.Type == "Entry" ? "↙" : "↗")</span><div class="movement-info"><strong>@(movement.Type == "Entry" ? "Entrada" : "Salida")</strong><span>@(string.IsNullOrEmpty(movement.Reason) ? "Sin motivo registrado" : movement.Reason)</span><small><time datetime="@movement.CreatedAt.ToString("O")">@movement.CreatedAt.ToString("dd MMM yyyy · HH:mm zzz")</time></small></div><strong class="movement-quantity @(movement.Type == "Entry" ? "positive" : "negative")">@(movement.Type == "Entry" ? "+" : "−")@movement.Quantity</strong></article>
+            }
+            </div>
+            @await Html.PartialAsync("_Pager", new PagerModel(Model.History.Page, Model.History.TotalPages, Model.History.TotalCount, PageUrl))
+        }
+    </section>
+
+    <aside class="panel register-panel" aria-labelledby="register-title"><span class="overline">NUEVO REGISTRO</span><h2 id="register-title">Mover existencias.</h2><p>Registra una entrada o salida. La API comprobará el stock disponible al guardar.</p>
+        @if (Model.IsActive != false && await Permissions.HasAsync("inventory.write"))
+        {
+            <form asp-antiforgery="true" method="post" action="@movementUrl" data-submitting>
+                <div class="field"><label for="movementType">Movimiento <span class="required">*</span></label><select id="movementType" name="Type" required><option value="Entry" selected="@(Model.Movement.Type == "Entry")">Entrada · suma unidades</option><option value="Exit" selected="@(Model.Movement.Type == "Exit")">Salida · resta unidades</option></select>@Html.ValidationMessage("Type", "", new { @class = "field-error" })</div>
+                <div class="field"><label for="quantity">Cantidad <span class="required">*</span></label>@Html.TextBox("Quantity", Model.Movement.Quantity == 0 ? "" : Model.Movement.Quantity.ToString(), new { id = "quantity", type = "text", inputmode = "numeric", pattern = "[0-9]+", required = "required", placeholder = "0" })@Html.ValidationMessage("Quantity", "", new { @class = "field-error" })</div>
+                <div class="field"><label for="reason">Motivo <span class="optional">Opcional</span></label><textarea id="reason" name="Reason" data-trim-max="500" rows="3" placeholder="Ej. Reposición de almacén">@Model.Movement.Reason</textarea>@Html.ValidationMessage("Reason", "", new { @class = "field-error" })</div>
+                <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+                <button class="button button-full" type="submit">Registrar movimiento <span aria-hidden="true">↗</span></button>
+            </form>
+        }
+        else if (Model.IsActive == false) { <div class="note-box">Este producto está inactivo.</div> }
+        else { <div class="note-box">Tu usuario no tiene permiso para registrar movimientos.</div> }
+    </aside>
+</div>
+
+
+
+
+
+

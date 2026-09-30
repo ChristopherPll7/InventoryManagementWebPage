@@ -1,0 +1,17 @@
+﻿@model PagerModel
+@if (Model.TotalPages > 1)
+{
+    <nav class="pager" aria-label="Paginación">
+        <span>Página <strong>@Model.Page</strong> de @Math.Min(Model.TotalPages, PaginationLimits.MaxPage) · @Model.TotalCount registros</span>
+        <div class="pager-links">
+            @if (Model.Page > 1) { <a href="@Model.Link(Model.Page - 1)" rel="prev">← Anterior</a> }
+            @if (Model.HasNext) { <a href="@Model.Link(Model.Page + 1)" rel="next">Siguiente →</a> }
+        </div>
+    </nav>
+}
+else if (Model.TotalCount > 0)
+{
+    <div class="pager"><span>@Model.TotalCount registros</span></div>
+}
+
+@if (Model.TotalPages > PaginationLimits.MaxPage) { <p>La interfaz permite consultar hasta la página 1000.</p> }

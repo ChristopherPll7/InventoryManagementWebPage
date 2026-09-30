@@ -1,0 +1,23 @@
+﻿@model MovementForm
+@{ ViewData["Title"] = "Registrar movimiento"; var id = (Guid)ViewData["ProductId"]!; }
+<a class="back-link" href="/products">← Operaciones</a>
+<h1>Registrar movimiento</h1>
+<p>Producto: <strong>@(ViewData["ProductName"] as string ?? "Nombre no disponible")</strong><br />
+UUID: <span class="mono">@id</span>. La API comprobará su estado y la existencia disponible al guardar.</p>
+@if (ViewData["Inactive"] is true)
+{
+    <div class="notice notice-warning" role="alert">El producto está inactivo y no admite movimientos.</div>
+}
+else
+{
+    <form method="post" action="@($"/inventory/products/{id}/movements{Context.Request.QueryString}")" asp-antiforgery="true" class="form-card" data-submitting>
+        <div asp-validation-summary="All" role="alert"></div>
+        <div class="field"><label asp-for="Type">Tipo</label><select asp-for="Type"><option value="Entry">Entrada</option><option value="Exit">Salida</option></select></div>
+        <div class="field"><label asp-for="Quantity">Cantidad</label><input asp-for="Quantity" type="text" inputmode="numeric" pattern="[0-9]+" required /></div>
+        <div class="field"><label asp-for="Reason">Motivo (opcional)</label><textarea asp-for="Reason" data-trim-max="500"></textarea></div>
+        <button type="submit" class="button">Registrar movimiento</button>
+    </form>
+}
+
+
+

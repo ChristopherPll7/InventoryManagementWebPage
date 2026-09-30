@@ -1,0 +1,9 @@
+﻿@inject PermissionService Permissions
+@{ var returnUrl = await Permissions.HasAsync("products.read") ? "/products/" + ViewData["Id"] : "/products"; }
+@model ProductForm
+@{ var id = (Guid)ViewData["Id"]!; ViewData["Title"] = "Editar producto"; }
+<a return-back class="back-link" href="@returnUrl">← Volver al detalle</a><div class="form-heading"><span class="overline">CATÁLOGO / EDITAR PRODUCTO</span><h1>Ajustar los detalles.</h1><p>El stock y el estado se administran por separado.</p></div>
+<p class="notice notice-warning">Guardar reemplaza todos los campos editables, incluida la descripción. Si no puedes leer los datos actuales, completa los valores que deseas conservar antes de enviar.</p><a href="/products">Volver a operaciones</a><div class="form-layout"><form preserve-return asp-antiforgery="true" method="post" action="/products/@id/edit" class="form-card" data-submitting><h2>Información del producto</h2><partial name="_Fields" model="Model" /><div class="form-actions"><a return-back class="button button-ghost" href="@returnUrl">Cancelar</a><button class="button" type="submit">Guardar cambios <span aria-hidden="true">↗</span></button></div></form><aside class="form-aside"><span class="overline">INVENTARIO</span><p>Editar este formulario no cambia la existencia ni reactiva un producto inactivo.</p></aside></div>
+
+
+

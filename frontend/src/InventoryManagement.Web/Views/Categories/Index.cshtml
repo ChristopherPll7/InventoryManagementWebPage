@@ -1,0 +1,26 @@
+﻿@model PagedResult<CategoryDto>
+@inject PermissionService Permissions
+@{ ViewData["Title"] = "Categorías"; }
+<div class="page-heading"><div><span class="overline">01 / CATÁLOGO</span><h1>Categorías</h1><p>Una estructura clara para tu inventario.</p></div>@if (await Permissions.HasAsync("categories.write")) { <a preserve-return class="button" href="/categories/create">+ Nueva categoría</a> }</div>
+
+@if (Model.Items.Count == 0 && Model.TotalCount == 0)
+{
+    <div class="empty-state"><span class="empty-shape" aria-hidden="true">◒</span><h2>Aún no hay categorías</h2><p>Crea la primera para organizar tus productos.</p>@if (await Permissions.HasAsync("categories.write")) { <a preserve-return class="button" href="/categories/create">Crear categoría</a> }</div>
+}
+else if (Model.Items.Count == 0)
+{
+    <div class="empty-state"><h2>Esta página no contiene registros.</h2><a preserve-return class="button button-ghost" href="/categories">Volver a la primera página</a></div>
+}
+else
+{
+    <div class="list-summary"><span>CATÁLOGO / TODAS</span><span>@Model.TotalCount en total</span></div>
+    <div class="table-wrap"><table role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Nombre</th><th scope="col" role="columnheader">Descripción</th><th scope="col" role="columnheader">Estado</th><th scope="col" role="columnheader" class="col-action">Detalle</th></tr></thead><tbody role="rowgroup">
+    @foreach (var item in Model.Items)
+    {
+        <tr role="row"><td role="cell" data-label="Nombre"><a preserve-return class="table-title" href="/categories/@item.Id">@item.Name</a></td><td role="cell" data-label="Descripción" class="muted">@(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)</td><td role="cell" data-label="Estado"><span class="status @(item.IsActive ? "status-active" : "status-inactive")">@(item.IsActive ? "Activa" : "Inactiva")</span></td><td role="cell" data-label="Detalle" class="col-action"><a preserve-return class="row-link" href="/categories/@item.Id" aria-label="Ver @item.Name">↗</a></td></tr>
+    }
+    </tbody></table></div>
+    @await Html.PartialAsync("_Pager", new PagerModel(Model.Page, Model.TotalPages, Model.TotalCount, p => Url.Action("Index", new { page = p, pageSize = Model.PageSize })!))
+}
+
+

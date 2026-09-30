@@ -1,0 +1,4 @@
+﻿@model ProductDto
+@{ ViewData["Title"] = "Desactivar producto"; }
+<a return-back class="back-link" href="/products/@Model.Id">← Volver al detalle</a><section class="confirm-card"><span class="overline">CONFIRMACIÓN</span><div class="confirm-symbol" aria-hidden="true">−</div><h1>¿Desactivar “@Model.Name”?</h1><p>Conservará sus @Model.CurrentStock unidades y todo su historial. Ya no será posible registrar movimientos nuevos ni reutilizar el SKU @Model.Sku.</p><form preserve-return asp-antiforgery="true" method="post" action="/products/@Model.Id/deactivate" data-submitting><div class="form-actions"><a return-back class="button button-ghost" href="/products/@Model.Id">Cancelar</a><button type="submit" class="button button-danger">Sí, desactivar</button></div></form></section>
+

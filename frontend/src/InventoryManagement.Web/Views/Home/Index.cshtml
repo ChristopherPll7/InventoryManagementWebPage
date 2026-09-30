@@ -1,0 +1,27 @@
+﻿@inject PermissionService Permissions
+@{
+    ViewData["Title"] = "Inicio";
+}
+<section class="hero">
+    <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> CONTROL DE INVENTARIO</div>
+        <h1>Todo en su <em>lugar.</em></h1>
+        <p>Una vista clara de tus productos, categorías y movimientos. Administra el catálogo y sigue cada cambio de existencias.</p>
+        @if (User.Identity?.IsAuthenticated != true)
+        {
+            <a class="button" href="/login">Iniciar sesión <span aria-hidden="true">↗</span></a>
+        }
+        else if (await Permissions.HasAsync("products.read"))
+        {
+            <a class="button" href="/products">Explorar productos <span aria-hidden="true">↗</span></a>
+        }
+    </div>
+    <div class="hero-art" aria-hidden="true"><span class="sun"></span><span class="pillar"></span><span class="arch"></span><span class="dot"></span></div>
+</section>
+
+<div class="section-heading"><div><span class="overline">EXPLORA</span><h2>Tu espacio de trabajo</h2></div><span class="section-index">01 / 02</span></div>
+<div class="feature-grid">
+    <a class="feature-card feature-olive" href="/categories"><span class="feature-number">01</span><span class="feature-icon" aria-hidden="true">◒</span><h3>Categorías</h3><p>Una estructura simple para mantener todo en orden.</p><span class="feature-arrow">Explorar <span aria-hidden="true">↗</span></span></a>
+    <a class="feature-card feature-clay" href="/products"><span class="feature-number">02</span><span class="feature-icon" aria-hidden="true">▰</span><h3>Productos</h3><p>Administra productos, consulta existencias y registra movimientos según tus permisos.</p><span class="feature-arrow">Explorar <span aria-hidden="true">↗</span></span></a>
+</div>
+

@@ -1,0 +1,5 @@
+﻿@model CategoryForm
+<div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+<div class="field"><label asp-for="Name">Nombre <span class="required">*</span></label><input asp-for="Name" data-trim-max="150" required autocomplete="off" placeholder="Ej. Herramientas" /><span asp-validation-for="Name" class="field-error"></span></div>
+<div class="field"><label asp-for="Description">Descripción <span class="optional">Opcional</span></label><textarea asp-for="Description" data-trim-max="500" rows="4" placeholder="Una breve descripción para identificarla"></textarea><span asp-validation-for="Description" class="field-error"></span><small>Hasta 500 caracteres.</small></div>
+

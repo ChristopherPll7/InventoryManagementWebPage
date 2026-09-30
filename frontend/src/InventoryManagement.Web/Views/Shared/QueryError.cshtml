@@ -1,0 +1,17 @@
+@model HistoryFilter
+@{ ViewData["Title"] = "Revisa los filtros"; }
+<h1>Revisa los filtros</h1>
+<p>No se muestran resultados. Corrige los valores para realizar la consulta.</p>
+<form method="get" action="@Context.Request.Path" class="form-card">
+    <div asp-validation-summary="All" class="validation-summary" role="alert"></div>
+    <div class="field"><label asp-for="Page">Página (1 a 1000)</label><input asp-for="Page" type="text" inputmode="numeric" required /></div>
+    <div class="field"><label asp-for="PageSize">Tamaño (1 a 100)</label><input asp-for="PageSize" type="text" inputmode="numeric" required /></div>
+    @if (ViewData["InventoryFilters"] is true)
+    {
+        <div class="field"><label asp-for="Type">Tipo (Entry o Exit, opcional)</label><input asp-for="Type" /></div>
+        <div class="field"><label asp-for="StartDateText">Desde (ISO 8601 con zona)</label><input asp-for="StartDateText" /></div>
+        <div class="field"><label asp-for="EndDateText">Hasta (ISO 8601 con zona)</label><input asp-for="EndDateText" /></div>
+    }
+    <input type="hidden" name="returnUrl" value="@Context.Request.Query["returnUrl"]" />
+    <button type="submit" class="button">Consultar</button>
+</form>

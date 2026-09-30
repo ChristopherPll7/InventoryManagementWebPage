@@ -1,0 +1,8 @@
+﻿@inject PermissionService Permissions
+@{ var returnUrl = await Permissions.HasAsync("categories.read") ? "/categories" : "/categories"; }
+@model CategoryForm
+@{ ViewData["Title"] = "Nueva categoría"; }
+<a return-back class="back-link" href="@returnUrl">← Todas las categorías</a><div class="form-heading"><span class="overline">CATÁLOGO / NUEVA CATEGORÍA</span><h1>Dar forma al orden.</h1><p>Agrega una categoría para agrupar tus productos.</p></div>
+<div class="form-layout"><form preserve-return asp-antiforgery="true" method="post" action="/categories/create" class="form-card" data-submitting><h2>Información básica</h2><partial name="_Fields" model="Model" /><div class="form-actions"><a return-back class="button button-ghost" href="@returnUrl">Cancelar</a><button type="submit" class="button">Crear categoría <span aria-hidden="true">↗</span></button></div></form><aside class="form-aside"><span class="overline">CONSEJO</span><p>Un nombre breve y claro ayuda a encontrar tus artículos con rapidez.</p></aside></div>
+
+

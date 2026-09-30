@@ -1,0 +1,25 @@
+﻿@model ProductListPage
+@inject PermissionService Permissions
+@{ ViewData["Title"] = "Productos"; }
+<div class="page-heading"><div><span class="overline">02 / CATÁLOGO</span><h1>Productos</h1><p>Conoce cada pieza de tu inventario.</p></div>@if (await Permissions.HasAsync("products.write")) { <a preserve-return class="button" href="/products/create">+ Nuevo producto</a> }</div>
+@if (Model.Products.Items.Count == 0 && Model.Products.TotalCount == 0)
+{
+    <div class="empty-state"><span class="empty-shape" aria-hidden="true">▰</span><h2>Aún no hay productos</h2><p>Agrega el primero para comenzar a registrar existencias.</p>@if (await Permissions.HasAsync("products.write")) { <a preserve-return class="button" href="/products/create">Crear producto</a> }</div>
+}
+else if (Model.Products.Items.Count == 0)
+{
+    <div class="empty-state"><h2>Esta página no contiene registros.</h2><a preserve-return class="button button-ghost" href="/products">Volver a la primera página</a></div>
+}
+else
+{
+    <div class="list-summary"><span>CATÁLOGO / TODOS</span><span>@Model.Products.TotalCount en total</span></div>
+    <div class="table-wrap"><table role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Producto</th><th scope="col" role="columnheader">Categoría</th><th scope="col" role="columnheader">Precio</th><th scope="col" role="columnheader">Existencia</th><th scope="col" role="columnheader">Estado</th><th scope="col" role="columnheader" class="col-action">Detalle</th></tr></thead><tbody role="rowgroup">
+    @foreach (var item in Model.Products.Items)
+    {
+        <tr role="row"><td role="cell" data-label="Producto"><a preserve-return class="table-title" href="/products/@item.Id">@item.Name</a><span class="table-sub">@item.Sku</span></td><td role="cell" data-label="Categoría">@(Model.Categories.TryGetValue(item.CategoryId, out var name) ? name : item.CategoryId.ToString())</td><td role="cell" data-label="Precio" class="number">@item.Price.ToString("N2")</td><td role="cell" data-label="Existencia"><strong class="stock-count">@item.CurrentStock</strong></td><td role="cell" data-label="Estado"><span class="status @(item.IsActive ? "status-active" : "status-inactive")">@(item.IsActive ? "Activo" : "Inactivo")</span></td><td role="cell" data-label="Detalle" class="col-action"><a preserve-return class="row-link" href="/products/@item.Id" aria-label="Ver @item.Name">↗</a></td></tr>
+    }
+    </tbody></table></div>
+    @await Html.PartialAsync("_Pager", new PagerModel(Model.Products.Page, Model.Products.TotalPages, Model.Products.TotalCount, p => Url.Action("Index", new { page = p, pageSize = Model.Products.PageSize })!))
+}
+
+

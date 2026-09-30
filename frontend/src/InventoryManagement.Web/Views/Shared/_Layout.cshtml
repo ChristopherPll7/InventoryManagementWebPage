@@ -1,0 +1,48 @@
+@inject PermissionService Permissions
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>@ViewData["Title"] · Inventario</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <div class="shell">
+        <header class="site-header">
+            <a class="brand" href="/" aria-label="Inventario, inicio">
+                <span class="brand-mark" aria-hidden="true"><span></span></span>
+                <span><strong>Inventario</strong><small>STOCK &amp; STUDIO</small></span>
+            </a>
+            <nav class="nav" aria-label="Navegación principal">
+                <a href="/" class="@(Context.Request.Path == "/" ? "active" : "")">Inicio</a>
+                @if (await Permissions.HasAsync("categories.read") || await Permissions.HasAsync("categories.write")) { <a href="/categories" class="@(Context.Request.Path.StartsWithSegments("/categories") ? "active" : "")">Categorías</a> }
+                @if (await Permissions.HasAsync("products.read") || await Permissions.HasAsync("products.write") || await Permissions.HasAsync("inventory.read") || await Permissions.HasAsync("inventory.write")) { <a href="/products" class="@(Context.Request.Path.StartsWithSegments("/products") || Context.Request.Path.StartsWithSegments("/inventory") ? "active" : "")">Productos</a> }
+            </nav>
+            <div class="account">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="account-name">@User.Identity.Name</span>
+                    <form asp-antiforgery="true" method="post" action="/logout"><button class="text-button" type="submit">Salir</button></form>
+                }
+                else { <a class="button button-small" href="/login">Entrar</a> }
+            </div>
+        </header>
+
+        <div id="navigation-status" class="loading-status" role="status" aria-live="polite" aria-atomic="true"></div>
+        <main id="main" tabindex="-1" class="main-content" aria-busy="false">
+            @if (TempData["Success"] is string success)
+            {
+                <div class="notice notice-success" role="status"><span aria-hidden="true">✳</span> @success</div>
+            }
+            @RenderBody()
+        </main>
+        <footer class="footer"><span>INVENTARIO · EDICIÓN LOCAL</span><span>Organiza cada pieza. Conoce cada movimiento.</span></footer>
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
